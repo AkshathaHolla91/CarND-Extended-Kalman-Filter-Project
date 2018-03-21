@@ -98,6 +98,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       */
       ekf_.x_(0)=measurement_pack.raw_measurements_(0);
       ekf_.x_(1)=measurement_pack.raw_measurements_(1);
+      ekf_.x_(2)=0;
+      ekf_.x_(3)=0;
+      
     }
     previous_timestamp_= measurement_pack.timestamp_;
     // done initializing, no need to predict or update
@@ -118,7 +121,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    */
   float noise_ax=9;
   float noise_ay=9;
-  float delta_t=measurement_pack.timestamp_-previous_timestamp_/1000000.0;
+  float delta_t=(measurement_pack.timestamp_-previous_timestamp_)/1000000.0;
   previous_timestamp_=measurement_pack.timestamp_;
   
   ekf_.F_(0,2)=delta_t;
@@ -152,7 +155,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     // Radar updates
     Tools tools;
     ekf_.R_=R_radar_;
-    ekf_.H_=tools.CalculateJacobian(measurement_pack.raw_measurements_);
+    ekf_.H_=tools.CalculateJacobian(ekf_.x_);
     ekf_.UpdateEKF(measurement_pack.raw_measurements_);
   } else {
     // Laser updates
